@@ -10,8 +10,8 @@ steps:
 - bash: |
    sudo pip install awscli
    export AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)
-   chmod +x ./pipeline.sh
-   ./pipeline.sh $(Build.BuildId) $(System.DefaultWorkingDirectory)
+   chmod +x ./ubuntu-16.04/pipeline.sh
+   ./ubuntu-16.04/pipeline.sh $(Build.BuildId) $(System.DefaultWorkingDirectory)
   displayName: Pipeline Bash Script
 
 - task: PublishBuildArtifacts@1

@@ -15,7 +15,7 @@ readonly BUILD_SOURCES_DIRECTORY=${2:-${PWD}}
 
 build_container_image() {
     echo "Building container image..."
-    docker build -t ${IMAGE_NAME} .
+    docker build -t ${IMAGE_NAME}:${TAG} .
 }
 
 push_container_image() {
@@ -23,10 +23,10 @@ push_container_image() {
     $(aws ecr get-login --no-include-email)
 
     account_id=$(aws sts get-caller-identity --output text --query 'Account')
-    image_name="${account_id}.dkr.ecr.${REGION}.amazonaws.com/ded/${IMAGE_NAME}:${TAG}"
+    ecr_image_name="${account_id}.dkr.ecr.${REGION}.amazonaws.com/ded/${IMAGE_NAME}:${TAG}"
 
     echo "Tagging container image..."
-    docker tag ${IMAGE_NAME}:${TAG} ${image_name}
+    docker tag ${IMAGE_NAME}:${TAG} ${ecr_image_name}
 
     echo "Pushing container image to ECR..."
     docker push ${image_name}

@@ -1,0 +1,34 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: azure-devops-build-agent-ubuntu-1604
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: azure-devops-build-agent-ubuntu-1604
+  template:
+    metadata:
+      labels:
+        app: azure-devops-build-agent-ubuntu-1604
+    spec:
+      containers:
+      - name: azure-devops-build-agent-ubuntu-1604
+        image: 579478677147.dkr.ecr.eu-central-1.amazonaws.com/ded/azure-devops-build-agent:ubuntu-1604
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "300m"
+          limits:
+            memory: "256Mi"
+            cpu: "600m"
+            ephemeral-storage: "10Gi"
+        env:
+        - name: VSTS_ACCOUNT
+          value: dfds
+        - name: VSTS_TOKEN
+          value: $(VSTS_TOKEN)
+        - name: VSTS_AGENT 
+          value: docker-agent-ubuntu-1604
+        - name: VSTS_POOL
+          value: Kims Test Agents

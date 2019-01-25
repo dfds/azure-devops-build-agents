@@ -29,7 +29,7 @@ push_container_image() {
     docker tag ${IMAGE_NAME}:${TAG} ${ecr_image_name}
 
     echo "Pushing container image to ECR..."
-    docker push ${image_name}
+    docker push ${ecr_image_name}
 }
 
 build_container_image

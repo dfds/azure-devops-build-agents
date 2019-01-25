@@ -1,0 +1,21 @@
+name: $(Build.BuildId)
+pool:
+  vmImage: 'ubuntu-16.04'
+trigger:
+  branches:
+    include:
+    - master
+steps:
+
+- bash: |
+   sudo pip install awscli
+   export AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)
+   chmod +x ./pipeline.sh
+   ./pipeline.sh $(Build.BuildId) $(System.DefaultWorkingDirectory)
+  displayName: Pipeline Bash Script
+
+- task: PublishBuildArtifacts@1
+  displayName: "Publish Artifact: manifests"
+  inputs:
+    PathtoPublish: k8s
+    ArtifactName: manifests

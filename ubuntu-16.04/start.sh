@@ -6,13 +6,6 @@ if [ -n "$VSTS_AGENT_IGNORE" ]; then
   export VSO_AGENT_IGNORE=$VSO_AGENT_IGNORE,VSTS_AGENT_IGNORE,$VSTS_AGENT_IGNORE
 fi
 
-if [ -e /vsts/agent -a ! -e /vsts/.configure ]; then
-  trap 'kill -SIGINT $!; exit 130' INT
-  trap 'kill -SIGTERM $!; exit 143' TERM
-  /vsts/agent/bin/Agent.Listener run & wait $!
-  exit $?
-fi
-
 if [ -z "$VSTS_ACCOUNT" ]; then
   echo 1>&2 error: missing VSTS_ACCOUNT environment variable
   exit 1
@@ -38,8 +31,6 @@ if [ -n "$VSTS_WORK" ]; then
 fi
 
 touch /vsts/.configure
-rm -rf /vsts/agent
-mkdir /vsts/agent
 cd /vsts/agent
 
 web-server() {
@@ -48,39 +39,10 @@ web-server() {
   done
 }
 
-cleanup() {
-  if [ -e config.sh ]; then
-    ./bin/Agent.Listener remove --unattended \
-      --auth PAT \
-      --token $(cat "$VSTS_TOKEN_FILE")
-  fi
-}
 
-trap 'cleanup; exit 130' INT
-trap 'cleanup; exit 143' TERM
-
-echo Determining matching VSTS agent...
-VSTS_AGENT_RESPONSE=$(curl -LsS \
-  -u user:$(cat "$VSTS_TOKEN_FILE") \
-  -H 'Accept:application/json;api-version=3.0-preview' \
-  "https://$VSTS_ACCOUNT.visualstudio.com/_apis/distributedtask/packages/agent?platform=linux-x64")
-
-if echo "$VSTS_AGENT_RESPONSE" | jq . >/dev/null 2>&1; then
-  VSTS_AGENT_URL=$(echo "$VSTS_AGENT_RESPONSE" \
-    | jq -r '.value | map([.version.major,.version.minor,.version.patch,.downloadUrl]) | sort | .[length-1] | .[3]')
-fi
-
-if [ -z "$VSTS_AGENT_URL" -o "$VSTS_AGENT_URL" == "null" ]; then
-  echo 1>&2 error: could not determine a matching VSTS agent - check that account \'$VSTS_ACCOUNT\' is correct and the token is valid for that account
-  exit 1
-fi
-
-echo Downloading and installing VSTS agent...
-echo from url: $VSTS_AGENT_URL
-curl -LsS $VSTS_AGENT_URL | tar -xz --no-same-owner & wait $!
+echo Starting VSTS agent...
 
 source ./env.sh
-
 ./bin/Agent.Listener configure --unattended \
   --agent "${VSTS_AGENT:-$(hostname)}" \
   --url "https://$VSTS_ACCOUNT.visualstudio.com" \

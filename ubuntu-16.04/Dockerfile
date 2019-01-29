@@ -41,10 +41,18 @@ RUN apt-get update \
     python3-pip \
  && pip3 install --upgrade pip \
  && rm -rf /var/lib/apt/lists/*
- 
+
+
+# Install aws cli
 RUN pip3 install awscli \
  && aws --version
 
+
+# Install build agent
+RUN mkdir /vsts/agent \
+&& curl -LsS https://vstsagentpackage.azureedge.net/agent/2.144.2/vsts-agent-linux-x64-2.144.2.tar.gz -o vsts-agent-linux.tar.gz \
+&& tar -xz --file vsts-agent-linux.tar.gz --no-same-owner --directory /vsts/agent \
+&& rm vsts-agent-linux.tar.gz
 
 # Clean system
 RUN apt-get clean \

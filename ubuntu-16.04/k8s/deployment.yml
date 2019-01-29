@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: azure-devops-build-agent-ubuntu-1604
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: azure-devops-build-agent-ubuntu-1604
@@ -33,8 +33,6 @@ spec:
           value: dfds
         - name: VSTS_TOKEN
           value: $(VSTS_TOKEN)
-        - name: VSTS_AGENT 
-          value: docker-agent-ubuntu-1604
         - name: VSTS_POOL
           value: Kims Test Agents
       volumes:

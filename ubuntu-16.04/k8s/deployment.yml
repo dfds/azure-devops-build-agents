@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: azure-devops-build-agent-ubuntu-1604
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: azure-devops-build-agent-ubuntu-1604
@@ -23,6 +23,11 @@ spec:
             memory: "256Mi"
             cpu: "600m"
             ephemeral-storage: "10Gi"
+        volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: docker-socket-volume
+        securityContext:
+          privileged: true
         env:
         - name: VSTS_ACCOUNT
           value: dfds
@@ -32,3 +37,8 @@ spec:
           value: docker-agent-ubuntu-1604
         - name: VSTS_POOL
           value: Kims Test Agents
+      volumes:
+        - name: docker-socket-volume
+          hostPath:
+            path: /var/run/docker.sock
+            type: File
